@@ -59,11 +59,11 @@ export function KanbanBoard({
 
   if (loading) {
     return (
-      <div className="flex gap-4 p-4 overflow-x-auto">
+      <div className="flex gap-3 p-4 h-[calc(100vh-4rem)]">
         {STATUSES.map((status) => (
           <div
             key={status}
-            className="flex-shrink-0 w-72 bg-gray-50 rounded-xl p-3 animate-pulse"
+            className="flex-1 min-w-0 bg-gray-50 rounded-xl p-3 animate-pulse"
           >
             <div className="h-6 bg-gray-200 rounded w-24 mb-3" />
             <div className="space-y-2">
@@ -91,7 +91,7 @@ export function KanbanBoard({
       }}
       onDragCancel={() => setActiveCard(null)}
     >
-      <div className="flex gap-4 p-4 overflow-x-auto min-h-[calc(100vh-8rem)]">
+      <div className="flex gap-3 p-4 h-[calc(100vh-4rem)]">
         {STATUSES.map((status) => (
           <KanbanColumn
             key={status}
@@ -100,26 +100,27 @@ export function KanbanBoard({
             onCardClick={onEditCard}
           />
         ))}
-
-        <button
-          onClick={onCreateCard}
-          className="flex-shrink-0 w-72 min-h-[100px] border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center text-gray-400 hover:text-blue-500 hover:border-blue-300 transition"
-        >
-          <svg
-            className="w-8 h-8"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-        </button>
       </div>
+
+      {/* Floating add button */}
+      <button
+        onClick={onCreateCard}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center transition hover:scale-105 z-50"
+      >
+        <svg
+          className="w-7 h-7"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+      </button>
 
       <DragOverlay>
         {activeCard ? (
