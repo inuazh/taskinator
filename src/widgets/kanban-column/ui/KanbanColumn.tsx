@@ -56,7 +56,7 @@ export function KanbanColumn({
 
       <div
         ref={setNodeRef}
-        className="space-y-2 min-h-[100px]"
+        className="space-y-2 min-h-[calc(100vh-12rem)] overflow-y-auto"
       >
         <SortableContext
           items={cards.map((c) => c.id)}

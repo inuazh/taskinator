@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -18,22 +18,23 @@ import { CardItem } from "@/entities/card/ui/CardItem";
 const STATUSES: CardStatus[] = ["NEW", "IN_PROGRESS", "DONE", "PROBLEM"];
 
 interface KanbanBoardProps {
+  initialCards?: Card[];
   onCreateCard: () => void;
   onEditCard: (cardId: string) => void;
   refreshKey: number;
-  onCardsLoaded?: (cards: Card[]) => void;
 }
 
 export function KanbanBoard({
+  initialCards,
   onCreateCard,
   onEditCard,
   refreshKey,
-  onCardsLoaded,
 }: KanbanBoardProps) {
-  const [loading, setLoading] = useState(true);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const { cards, setCards, getCardsByStatus, handleDragOver, handleDragEnd } =
-    useDragCard([]);
+    useDragCard(initialCards || []);
+
+  const isFirstRender = useRef(true);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -41,40 +42,26 @@ export function KanbanBoard({
     })
   );
 
+  // Only fetch on refresh (not on first render if we have initialCards)
   const loadCards = useCallback(async () => {
     try {
       const data = await getCards();
       setCards(data);
-      onCardsLoaded?.(data);
     } catch (err) {
       console.error("Ошибка загрузки карточек:", err);
-    } finally {
-      setLoading(false);
     }
-  }, [setCards, onCardsLoaded]);
+  }, [setCards]);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      if (!initialCards?.length) {
+        loadCards();
+      }
+      return;
+    }
     loadCards();
   }, [loadCards, refreshKey]);
-
-  if (loading) {
-    return (
-      <div className="flex gap-3 p-4 h-[calc(100vh-4rem)]">
-        {STATUSES.map((status) => (
-          <div
-            key={status}
-            className="flex-1 min-w-0 bg-gray-50 rounded-xl p-3 animate-pulse"
-          >
-            <div className="h-6 bg-gray-200 rounded w-24 mb-3" />
-            <div className="space-y-2">
-              <div className="h-20 bg-gray-200 rounded" />
-              <div className="h-20 bg-gray-200 rounded" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
 
   return (
     <DndContext
