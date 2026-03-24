@@ -50,12 +50,14 @@ model Note {
 }
 
 model Reminder {
-  id        String   @id @default(uuid())
-  cardId    String
-  text      String
-  remindAt  DateTime
-  isSent    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id         String    @id @default(uuid())
+  cardId     String
+  text       String
+  remindAt   DateTime
+  isSent     Boolean   @default(false)
+  isDone     Boolean   @default(false)
+  lastSentAt DateTime?
+  createdAt  DateTime  @default(now())
 
   card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
 }

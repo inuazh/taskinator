@@ -9,7 +9,6 @@ webpush.setVapidDetails(
 );
 
 export async function GET(request: Request) {
-  // In production, verify cron secret. In dev, allow without auth.
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret && cronSecret !== "your-cron-secret-here") {
     const authHeader = request.headers.get("authorization");
@@ -19,11 +18,22 @@ export async function GET(request: Request) {
   }
 
   const now = new Date();
+  const currentHour = now.getUTCHours() + 3; // примерно для UTC+3, подстрой под свой часовой пояс
 
+  // Рабочее время: 9:00 - 21:00
+  const isWorkingHours = currentHour >= 9 && currentHour < 21;
+
+  const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+
+  // Найти все дела: время пришло, не выполнены, и либо ещё не отправлялись, либо прошло 3+ часа с последней отправки
   const reminders = await prisma.reminder.findMany({
     where: {
       remindAt: { lte: now },
-      isSent: false,
+      isDone: false,
+      OR: [
+        { lastSentAt: null },
+        { lastSentAt: { lte: threeHoursAgo } },
+      ],
     },
     include: {
       card: {
@@ -41,6 +51,9 @@ export async function GET(request: Request) {
   let sent = 0;
 
   for (const reminder of reminders) {
+    // Пропускаем отправку вне рабочего времени (кроме первой отправки)
+    if (!isWorkingHours && reminder.isSent) continue;
+
     const subscriptions = reminder.card.user.pushSubscriptions;
 
     for (const sub of subscriptions) {
@@ -54,7 +67,7 @@ export async function GET(request: Request) {
             },
           },
           JSON.stringify({
-            title: "Напоминание",
+            title: `Дело: ${reminder.card.title}`,
             body: reminder.text,
             cardId: reminder.cardId,
           })
@@ -62,7 +75,6 @@ export async function GET(request: Request) {
         sent++;
       } catch (err) {
         console.error("Push error:", err);
-        // Remove invalid subscription
         if (
           err &&
           typeof err === "object" &&
@@ -76,7 +88,10 @@ export async function GET(request: Request) {
 
     await prisma.reminder.update({
       where: { id: reminder.id },
-      data: { isSent: true },
+      data: {
+        isSent: true,
+        lastSentAt: now,
+      },
     });
   }
 

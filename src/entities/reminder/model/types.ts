@@ -4,5 +4,7 @@ export interface Reminder {
   text: string;
   remindAt: string;
   isSent: boolean;
+  isDone: boolean;
+  lastSentAt: string | null;
   createdAt: string;
 }
