@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { Card } from "@/entities/card/model/types";
 import { KanbanBoard } from "@/widgets/kanban-board/ui/KanbanBoard";
 import { CreateCardModal } from "@/features/create-card/ui/CreateCardModal";
-import { EditCardModal } from "@/features/edit-card/ui/EditCardModal";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
-  const [editCardId, setEditCardId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [allCards, setAllCards] = useState<Card[]>([]);
+  const [, setAllCards] = useState<Card[]>([]);
 
   const refresh = () => setRefreshKey((k) => k + 1);
 
@@ -23,7 +23,7 @@ export default function DashboardPage() {
       <KanbanBoard
         refreshKey={refreshKey}
         onCreateCard={() => setShowCreate(true)}
-        onEditCard={(id) => setEditCardId(id)}
+        onEditCard={(id) => router.push(`/card/${id}`)}
         onCardsLoaded={handleCardsLoaded}
       />
 
@@ -32,15 +32,6 @@ export default function DashboardPage() {
         onClose={() => setShowCreate(false)}
         onCreated={refresh}
       />
-
-      {editCardId && (
-        <EditCardModal
-          cardId={editCardId}
-          cards={allCards}
-          onClose={() => setEditCardId(null)}
-          onUpdated={refresh}
-        />
-      )}
     </div>
   );
 }
