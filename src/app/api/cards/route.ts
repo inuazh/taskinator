@@ -11,7 +11,15 @@ export async function GET() {
 
   const cards = await prisma.card.findMany({
     where: { userId: session.user.id },
-    include: { notes: true, reminders: true },
+    include: {
+      _count: { select: { notes: true, reminders: true } },
+      reminders: {
+        where: { isDone: false },
+        orderBy: { remindAt: "asc" },
+        take: 1,
+        select: { remindAt: true },
+      },
+    },
     orderBy: { order: "asc" },
   });
 
@@ -48,7 +56,15 @@ export async function POST(request: Request) {
       status: cardStatus,
       order: (maxOrder._max.order ?? -1) + 1,
     },
-    include: { notes: true, reminders: true },
+    include: {
+      _count: { select: { notes: true, reminders: true } },
+      reminders: {
+        where: { isDone: false },
+        orderBy: { remindAt: "asc" },
+        take: 1,
+        select: { remindAt: true },
+      },
+    },
   });
 
   return NextResponse.json(card, { status: 201 });

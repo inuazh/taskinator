@@ -18,7 +18,7 @@ export async function GET(request: Request) {
   }
 
   const now = new Date();
-  const currentHour = now.getUTCHours() + 3; // примерно для UTC+3, подстрой под свой часовой пояс
+  const currentHour = now.getUTCHours() + 3; // примерно для UTC+3
 
   // Рабочее время: 9:00 - 21:00
   const isWorkingHours = currentHour >= 9 && currentHour < 21;

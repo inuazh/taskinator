@@ -2,11 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Card, CardStatus } from "@/entities/card/model/types";
+import { CardFull, CardStatus } from "@/entities/card/model/types";
 import { updateCard, deleteCard } from "@/entities/card/api/cardApi";
-import { getNotes, createNote, deleteNote } from "@/entities/note/api/noteApi";
+import { createNote, deleteNote } from "@/entities/note/api/noteApi";
 import {
-  getReminders,
   createReminder,
   deleteReminder,
   toggleReminderDone,
@@ -44,7 +43,7 @@ export default function CardPage() {
   const cardId = params.id as string;
   const feedEndRef = useRef<HTMLDivElement>(null);
 
-  const [card, setCard] = useState<Card | null>(null);
+  const [card, setCard] = useState<CardFull | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [title, setTitle] = useState("");
@@ -66,15 +65,18 @@ export default function CardPage() {
   const [taskDatetime, setTaskDatetime] = useState("");
   const [sendingTask, setSendingTask] = useState(false);
 
-  const loadCard = useCallback(async () => {
+  // Single fetch — card includes notes + reminders
+  const loadAll = useCallback(async () => {
     try {
       const res = await fetch(`/api/cards/${cardId}`);
       if (!res.ok) throw new Error();
-      const data: Card = await res.json();
+      const data: CardFull = await res.json();
       setCard(data);
       setTitle(data.title);
       setLink(data.link || "");
       setStatus(data.status);
+      setNotes(data.notes);
+      setReminders(data.reminders);
     } catch {
       toast.error("Карточка не найдена");
       router.push("/");
@@ -83,23 +85,9 @@ export default function CardPage() {
     }
   }, [cardId, router]);
 
-  const loadData = useCallback(async () => {
-    try {
-      const [notesData, remindersData] = await Promise.all([
-        getNotes(cardId),
-        getReminders(cardId),
-      ]);
-      setNotes(notesData);
-      setReminders(remindersData);
-    } catch (err) {
-      console.error("Ошибка загрузки:", err);
-    }
-  }, [cardId]);
-
   useEffect(() => {
-    loadCard();
-    loadData();
-  }, [loadCard, loadData]);
+    loadAll();
+  }, [loadAll]);
 
   useEffect(() => {
     feedEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -206,8 +194,24 @@ export default function CardPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+      <div className="flex h-[calc(100vh-4rem)] overflow-hidden animate-pulse">
+        <div className="w-80 flex-shrink-0 bg-white border-r border-gray-200 p-5">
+          <div className="h-4 bg-gray-200 rounded w-20 mb-6" />
+          <div className="h-6 bg-gray-200 rounded w-40 mb-4" />
+          <div className="h-4 bg-gray-200 rounded w-32 mb-4" />
+          <div className="flex gap-2 mb-6 mt-6">
+            <div className="h-7 bg-gray-200 rounded-full w-16" />
+            <div className="h-7 bg-gray-200 rounded-full w-16" />
+            <div className="h-7 bg-gray-200 rounded-full w-20" />
+          </div>
+          <div className="h-20 bg-gray-100 rounded-lg" />
+        </div>
+        <div className="flex-1 bg-gray-50 p-5 space-y-3">
+          <div className="h-16 bg-white rounded-lg" />
+          <div className="h-12 bg-white rounded-lg" />
+          <div className="h-20 bg-amber-50 rounded-lg" />
+          <div className="h-14 bg-white rounded-lg" />
+        </div>
       </div>
     );
   }

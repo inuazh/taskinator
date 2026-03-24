@@ -15,12 +15,15 @@ function urlBase64ToUint8Array(base64String: string) {
 
 export function usePushSubscription() {
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission>("default");
+
+  // Read permission synchronously during render (not in effect)
+  const permission =
+    typeof window !== "undefined" && "Notification" in window
+      ? Notification.permission
+      : "default";
 
   useEffect(() => {
     if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
-
-    setPermission(Notification.permission);
 
     navigator.serviceWorker
       .register("/sw.js")
@@ -36,7 +39,6 @@ export function usePushSubscription() {
   const subscribe = async () => {
     try {
       const perm = await Notification.requestPermission();
-      setPermission(perm);
 
       if (perm !== "granted") return;
 
