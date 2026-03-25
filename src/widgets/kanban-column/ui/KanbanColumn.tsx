@@ -41,8 +41,8 @@ export function KanbanColumn({
 
   return (
     <div
-      className={`flex-1 min-w-0 bg-gray-50 rounded-xl p-3 transition ${
-        isOver ? "bg-blue-50 ring-2 ring-blue-200" : ""
+      className={`flex-1 min-w-0 bg-gray-50 rounded-xl p-3${
+        isOver ? " bg-blue-50 ring-2 ring-blue-200" : ""
       }`}
     >
       <div className="flex items-center justify-between mb-3">
