@@ -195,7 +195,7 @@ export default function CardPage() {
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-4rem)] overflow-hidden animate-pulse">
-        <div className="w-80 flex-shrink-0 bg-white border-r border-gray-200 p-5">
+        <div className="w-80 flex-shrink-0 bg-white border-r border-gray-200 p-5 flex flex-col">
           <div className="h-4 bg-gray-200 rounded w-20 mb-6" />
           <div className="h-6 bg-gray-200 rounded w-40 mb-4" />
           <div className="h-4 bg-gray-200 rounded w-32 mb-4" />
@@ -206,11 +206,16 @@ export default function CardPage() {
           </div>
           <div className="h-20 bg-gray-100 rounded-lg" />
         </div>
-        <div className="flex-1 bg-gray-50 p-5 space-y-3">
-          <div className="h-16 bg-white rounded-lg" />
-          <div className="h-12 bg-white rounded-lg" />
-          <div className="h-20 bg-amber-50 rounded-lg" />
-          <div className="h-14 bg-white rounded-lg" />
+        <div className="flex-1 flex flex-col bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-5 space-y-2">
+            <div className="h-16 bg-white rounded-lg" />
+            <div className="h-12 bg-white rounded-lg" />
+            <div className="h-20 bg-amber-50 rounded-lg" />
+            <div className="h-14 bg-white rounded-lg" />
+          </div>
+          <div className="p-4 bg-white border-t border-gray-200">
+            <div className="h-10 bg-gray-100 rounded-lg" />
+          </div>
         </div>
       </div>
     );
@@ -439,8 +444,7 @@ export default function CardPage() {
         </div>
 
         {/* Task form (inline) */}
-        {showTaskForm && (
-          <div className="px-5 py-3 bg-white border-t border-gray-200">
+        <div className={`px-5 py-3 bg-white border-t border-gray-200 ${showTaskForm ? "" : "hidden"}`}>
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -473,8 +477,7 @@ export default function CardPage() {
                 </svg>
               </button>
             </div>
-          </div>
-        )}
+        </div>
 
         {/* Input bar */}
         <div className="p-4 bg-white border-t border-gray-200">
