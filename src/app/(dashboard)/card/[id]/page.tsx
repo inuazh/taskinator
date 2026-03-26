@@ -57,13 +57,8 @@ export default function CardPage() {
   const [reminders, setReminders] = useState<Reminder[]>([]);
 
   const [messageText, setMessageText] = useState("");
-  const [sendingNote, setSendingNote] = useState(false);
-
-  // Task (дело) form — inline single input
-  const [showTaskForm, setShowTaskForm] = useState(false);
-  const [taskText, setTaskText] = useState("");
   const [taskDatetime, setTaskDatetime] = useState("");
-  const [sendingTask, setSendingTask] = useState(false);
+  const [sending, setSending] = useState(false);
 
   // Single fetch — card includes notes + reminders
   const loadAll = useCallback(async () => {
@@ -102,42 +97,34 @@ export default function CardPage() {
       new Date(a.data.createdAt).getTime() - new Date(b.data.createdAt).getTime()
   );
 
-  const handleSendNote = async () => {
+  const handleSend = async () => {
     if (!messageText.trim()) return;
-    setSendingNote(true);
+    setSending(true);
     try {
-      const note = await createNote(cardId, messageText);
-      setNotes((prev) => [...prev, note]);
+      if (taskDatetime) {
+        // Text + date = task (дело)
+        const remindAt = new Date(taskDatetime).toISOString();
+        const reminder = await createReminder(cardId, messageText, remindAt);
+        setReminders((prev) => [...prev, reminder]);
+        setTaskDatetime("");
+        toast.success("Дело добавлено");
+      } else {
+        // Text only = note
+        const note = await createNote(cardId, messageText);
+        setNotes((prev) => [...prev, note]);
+      }
       setMessageText("");
     } catch {
       toast.error("Ошибка отправки");
     } finally {
-      setSendingNote(false);
+      setSending(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendNote();
-    }
-  };
-
-  const handleAddTask = async () => {
-    if (!taskText.trim() || !taskDatetime) return;
-    setSendingTask(true);
-    try {
-      const remindAt = new Date(taskDatetime).toISOString();
-      const reminder = await createReminder(cardId, taskText, remindAt);
-      setReminders((prev) => [...prev, reminder]);
-      setTaskText("");
-      setTaskDatetime("");
-      setShowTaskForm(false);
-      toast.success("Дело добавлено");
-    } catch {
-      toast.error("Ошибка");
-    } finally {
-      setSendingTask(false);
+      handleSend();
     }
   };
 
@@ -443,63 +430,14 @@ export default function CardPage() {
           <div ref={feedEndRef} />
         </div>
 
-        {/* Task form (inline) */}
-        <div className={`px-5 py-3 bg-white border-t border-gray-200 ${showTaskForm ? "" : "hidden"}`}>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={taskText}
-                onChange={(e) => setTaskText(e.target.value)}
-                placeholder="Что нужно сделать?"
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
-              />
-              <input
-                type="datetime-local"
-                value={taskDatetime}
-                onChange={(e) => setTaskDatetime(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <Button
-                size="sm"
-                onClick={handleAddTask}
-                loading={sendingTask}
-                disabled={!taskText.trim() || !taskDatetime}
-              >
-                Добавить
-              </Button>
-              <button
-                onClick={() => setShowTaskForm(false)}
-                className="text-gray-400 hover:text-gray-600 p-1"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-        </div>
-
-        {/* Input bar */}
+        {/* Unified input bar */}
         <div className="p-4 bg-white border-t border-gray-200">
           <div className="flex items-end gap-2">
-            <button
-              onClick={() => setShowTaskForm(!showTaskForm)}
-              className={`p-2.5 rounded-lg transition flex-shrink-0 ${
-                showTaskForm
-                  ? "bg-amber-100 text-amber-600"
-                  : "text-gray-400 hover:text-amber-600 hover:bg-amber-50"
-              }`}
-              title="Добавить дело"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-              </svg>
-            </button>
             <textarea
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Написать заметку..."
+              placeholder={taskDatetime ? "Что нужно сделать?" : "Написать заметку..."}
               rows={1}
               className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               style={{ minHeight: "42px", maxHeight: "120px" }}
@@ -509,9 +447,29 @@ export default function CardPage() {
                 target.style.height = target.scrollHeight + "px";
               }}
             />
+            <div className="relative flex-shrink-0">
+              <input
+                type="datetime-local"
+                value={taskDatetime}
+                onChange={(e) => setTaskDatetime(e.target.value)}
+                className={`px-3 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  taskDatetime
+                    ? "border-amber-300 bg-amber-50 text-gray-900"
+                    : "border-gray-300 text-gray-900"
+                }`}
+              />
+              {taskDatetime && (
+                <button
+                  onClick={() => setTaskDatetime("")}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-400 hover:bg-gray-500 text-white rounded-full flex items-center justify-center text-xs transition"
+                >
+                  ×
+                </button>
+              )}
+            </div>
             <Button
-              onClick={handleSendNote}
-              loading={sendingNote}
+              onClick={handleSend}
+              loading={sending}
               disabled={!messageText.trim()}
               className="flex-shrink-0 !rounded-xl !px-4"
             >
@@ -520,6 +478,11 @@ export default function CardPage() {
               </svg>
             </Button>
           </div>
+          {taskDatetime && (
+            <p className="text-xs text-amber-600 mt-1.5 ml-1">
+              Будет создано дело с напоминанием
+            </p>
+          )}
         </div>
       </div>
     </div>
