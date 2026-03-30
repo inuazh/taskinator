@@ -41,7 +41,7 @@ export function KanbanColumn({
 
   return (
     <div
-      className={`w-[80vw] flex-shrink-0 sm:flex-1 sm:min-w-0 bg-gray-50 rounded-xl p-3${
+      className={`w-[88vw] flex-shrink-0 snap-start sm:flex-1 sm:min-w-0 sm:w-auto bg-gray-50 rounded-xl p-3${
         isOver ? " bg-blue-50 ring-2 ring-blue-200" : ""
       }`}
     >

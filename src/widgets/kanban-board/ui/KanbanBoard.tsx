@@ -78,7 +78,7 @@ export function KanbanBoard({
       }}
       onDragCancel={() => setActiveCard(null)}
     >
-      <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden">
+      <div className="flex gap-3 p-4 h-full overflow-x-auto overflow-y-hidden snap-x snap-mandatory sm:snap-none scroll-smooth">
         {STATUSES.map((status) => (
           <KanbanColumn
             key={status}
