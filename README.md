@@ -1,4 +1,5 @@
 # 🚀 Taskinator
+![alt text](readme_assets/image.png)
 
 **Минималистичная CRM-система с канбан-доской, заметками и push-уведомлениями**
 
