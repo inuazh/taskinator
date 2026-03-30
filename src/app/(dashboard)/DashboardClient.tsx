@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card } from "@/entities/card/model/types";
 import { KanbanBoard } from "@/widgets/kanban-board/ui/KanbanBoard";
-import { PlanningView } from "@/widgets/planning-view/ui/PlanningView";
+import { PlanningView, PlanningReminder } from "@/widgets/planning-view/ui/PlanningView";
 import { CreateCardModal } from "@/features/create-card/ui/CreateCardModal";
 
 interface DashboardClientProps {
@@ -18,6 +18,22 @@ export function DashboardClient({ initialCards }: DashboardClientProps) {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
   const [view, setView] = useState<View>("kanban");
+
+  const [planningReminders, setPlanningReminders] = useState<PlanningReminder[]>([]);
+  const [planningLoading, setPlanningLoading] = useState(false);
+  const planningFetched = useRef(false);
+
+  useEffect(() => {
+    if (view === "planning" && !planningFetched.current) {
+      planningFetched.current = true;
+      setPlanningLoading(true);
+      fetch("/api/reminders/planning")
+        .then((r) => r.json())
+        .then(setPlanningReminders)
+        .catch(() => {})
+        .finally(() => setPlanningLoading(false));
+    }
+  }, [view]);
 
   const refresh = () => setRefreshKey((k) => k + 1);
 
@@ -43,7 +59,7 @@ export function DashboardClient({ initialCards }: DashboardClientProps) {
             onEditCard={(id) => router.push(`/card/${id}`)}
           />
         ) : (
-          <PlanningView />
+          <PlanningView reminders={planningReminders} loading={planningLoading} />
         )}
       </div>
 

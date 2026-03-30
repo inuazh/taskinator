@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+// fetch and state are managed by the parent (DashboardClient)
 
-interface PlanningReminder {
+export interface PlanningReminder {
   id: string;
   cardId: string;
   text: string;
@@ -99,18 +99,13 @@ function Group({ label, count, headerColor, overdue, items, onItemClick }: Group
   );
 }
 
-export function PlanningView() {
-  const router = useRouter();
-  const [reminders, setReminders] = useState<PlanningReminder[]>([]);
-  const [loading, setLoading] = useState(true);
+interface PlanningViewProps {
+  reminders: PlanningReminder[];
+  loading: boolean;
+}
 
-  useEffect(() => {
-    fetch("/api/reminders/planning")
-      .then((r) => r.json())
-      .then(setReminders)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+export function PlanningView({ reminders, loading }: PlanningViewProps) {
+  const router = useRouter();
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
