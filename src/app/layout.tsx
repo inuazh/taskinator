@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mini-CRM",
-  description: "Простая CRM с канбан-доской",
+  title: "таскинатор",
+  description: "максимально простая и удобная CRM с канбан-доской",
 };
 
 export default function RootLayout({
