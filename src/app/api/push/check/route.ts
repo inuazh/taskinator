@@ -2,6 +2,17 @@ import { NextResponse } from "next/server";
 import webpush from "web-push";
 import { prisma } from "@/shared/lib/prisma";
 
+const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+
+async function sendTelegramMessage(chatId: bigint, text: string) {
+  if (!TG_TOKEN) return;
+  await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: String(chatId), text }),
+  });
+}
+
 webpush.setVapidDetails(
   "mailto:admin@mini-crm.app",
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
@@ -84,6 +95,15 @@ export async function GET(request: Request) {
           await prisma.pushSubscription.delete({ where: { id: sub.id } });
         }
       }
+    }
+
+    // Telegram notification
+    const telegramId = reminder.card.user.telegramId;
+    if (telegramId) {
+      await sendTelegramMessage(
+        telegramId,
+        `🔔 Напоминание: ${reminder.text}\n📋 Карточка: ${reminder.card.title}`
+      );
     }
 
     await prisma.reminder.update({

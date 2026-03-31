@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
 import { usePushSubscription } from "@/features/push-notifications/lib/usePushSubscription";
+import { TelegramLink } from "@/features/telegram-link/ui/TelegramLink";
 
 export default function DashboardLayout({
   children,
@@ -32,6 +33,7 @@ export default function DashboardLayout({
           <h1 className="text-lg font-bold text-gray-800">Mini-CRM</h1>
 
           <div className="flex items-center gap-3">
+            <TelegramLink />
             {!isSubscribed && permission !== "denied" && (
               <button
                 onClick={subscribe}

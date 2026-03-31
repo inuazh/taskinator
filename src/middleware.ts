@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
   const { pathname } = request.nextUrl;
 
-  const publicPaths = ["/login", "/register", "/api/auth", "/api/push/check"];
+  const publicPaths = ["/login", "/register", "/api/auth", "/api/push/check", "/api/telegram/webhook"];
   const isPublic = publicPaths.some((path) => pathname.startsWith(path));
 
   if (!token && !isPublic) {
