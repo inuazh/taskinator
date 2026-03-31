@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Manrope } from "next/font/google";
+import Script from "next/script";
 import { Providers } from "@/shared/lib/Providers";
+import { TelegramWebAppInit } from "@/shared/ui/TelegramWebAppInit";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -25,6 +27,11 @@ export default function RootLayout({
       className={`${manrope.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-[family-name:var(--font-manrope)]">
+        <Script
+          src="https://telegram.org/js/telegram-web-app.js"
+          strategy="beforeInteractive"
+        />
+        <TelegramWebAppInit />
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -15,11 +15,13 @@ enum CardStatus {
 }
 
 model User {
-  id           String   @id @default(uuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id               String   @id @default(uuid())
+  name             String
+  email            String   @unique
+  passwordHash     String
+  createdAt        DateTime @default(now())
+  telegramId       BigInt?  @unique
+  telegramLinkCode String?  @unique
 
   cards             Card[]
   pushSubscriptions PushSubscription[]
