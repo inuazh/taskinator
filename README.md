@@ -1,6 +1,6 @@
 # 🚀 Taskinator
 ![alt text](readme_assets/image.png)
-
+![карточка задачи](readme_assets/inside_card.png)
 **Минималистичная CRM-система с канбан-доской, заметками и push-уведомлениями**
 
 > 🌐 **Демо:** [taskinator-seven.vercel.app](https://taskinator-seven.vercel.app/)
