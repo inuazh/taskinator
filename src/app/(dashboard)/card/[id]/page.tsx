@@ -59,6 +59,7 @@ export default function CardPage() {
   const [messageText, setMessageText] = useState("");
   const [taskDatetime, setTaskDatetime] = useState("");
   const [sending, setSending] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"feed" | "info">("feed");
 
   // Single fetch — card includes notes + reminders
   const loadAll = useCallback(async () => {
@@ -181,27 +182,35 @@ export default function CardPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] overflow-hidden animate-pulse">
-        <div className="w-80 flex-shrink-0 bg-white border-r border-gray-200 p-5 flex flex-col">
-          <div className="h-4 bg-gray-200 rounded w-20 mb-6" />
-          <div className="h-6 bg-gray-200 rounded w-40 mb-4" />
-          <div className="h-4 bg-gray-200 rounded w-32 mb-4" />
-          <div className="flex gap-2 mb-6 mt-6">
-            <div className="h-7 bg-gray-200 rounded-full w-16" />
-            <div className="h-7 bg-gray-200 rounded-full w-16" />
-            <div className="h-7 bg-gray-200 rounded-full w-20" />
-          </div>
-          <div className="h-20 bg-gray-100 rounded-lg" />
+      <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden animate-pulse">
+        {/* Skeleton tab bar (mobile) */}
+        <div className="flex items-center border-b border-gray-200 bg-white sm:hidden flex-shrink-0">
+          <div className="w-10 h-10 border-r border-gray-200 flex-shrink-0" />
+          <div className="flex-1 h-10 bg-gray-100 mx-2 rounded" />
+          <div className="flex-1 h-10 bg-gray-100 mx-2 rounded" />
         </div>
-        <div className="flex-1 flex flex-col bg-gray-50">
-          <div className="flex-1 overflow-y-auto p-5 space-y-2">
-            <div className="h-16 bg-white rounded-lg" />
-            <div className="h-12 bg-white rounded-lg" />
-            <div className="h-20 bg-amber-50 rounded-lg" />
-            <div className="h-14 bg-white rounded-lg" />
+        <div className="flex flex-1 overflow-hidden sm:flex-row flex-col">
+          <div className="w-full sm:w-80 sm:flex-shrink-0 bg-white sm:border-r border-gray-200 p-5 flex flex-col">
+            <div className="h-4 bg-gray-200 rounded w-20 mb-6" />
+            <div className="h-6 bg-gray-200 rounded w-40 mb-4" />
+            <div className="h-4 bg-gray-200 rounded w-32 mb-4" />
+            <div className="flex gap-2 mb-6 mt-6">
+              <div className="h-7 bg-gray-200 rounded-full w-16" />
+              <div className="h-7 bg-gray-200 rounded-full w-16" />
+              <div className="h-7 bg-gray-200 rounded-full w-20" />
+            </div>
+            <div className="h-20 bg-gray-100 rounded-lg" />
           </div>
-          <div className="p-4 bg-white border-t border-gray-200">
-            <div className="h-10 bg-gray-100 rounded-lg" />
+          <div className="flex-1 flex flex-col bg-gray-50">
+            <div className="flex-1 overflow-y-auto p-5 space-y-2">
+              <div className="h-16 bg-white rounded-lg" />
+              <div className="h-12 bg-white rounded-lg" />
+              <div className="h-20 bg-amber-50 rounded-lg" />
+              <div className="h-14 bg-white rounded-lg" />
+            </div>
+            <div className="p-4 bg-white border-t border-gray-200">
+              <div className="h-10 bg-gray-100 rounded-lg" />
+            </div>
           </div>
         </div>
       </div>
@@ -213,12 +222,43 @@ export default function CardPage() {
   const activeTasks = reminders.filter((r) => !r.isDone).length;
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
-      {/* Left sidebar */}
-      <div className="w-80 flex-shrink-0 bg-white border-r border-gray-200 p-5 flex flex-col overflow-y-auto">
+    <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden">
+      {/* Mobile tab bar */}
+      <div className="flex items-center border-b border-gray-200 bg-white sm:hidden flex-shrink-0">
         <button
           onClick={() => router.push("/")}
-          className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-5 transition"
+          className="flex items-center justify-center w-10 h-10 text-gray-500 hover:text-gray-700 flex-shrink-0 border-r border-gray-200"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          onClick={() => setMobileTab("feed")}
+          className={`flex-1 py-2.5 text-sm font-medium border-b-2 transition ${
+            mobileTab === "feed" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500"
+          }`}
+        >
+          Чат
+        </button>
+        <button
+          onClick={() => setMobileTab("info")}
+          className={`flex-1 py-2.5 text-sm font-medium border-b-2 transition ${
+            mobileTab === "info" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500"
+          }`}
+        >
+          Инфо
+        </button>
+      </div>
+
+      {/* Content row */}
+      <div className="flex flex-1 overflow-hidden sm:flex-row flex-col">
+
+      {/* Left sidebar */}
+      <div className={`w-full sm:w-80 sm:flex-shrink-0 bg-white sm:border-r border-gray-200 p-5 flex-col overflow-y-auto ${mobileTab === "info" ? "flex" : "hidden"} sm:flex`}>
+        <button
+          onClick={() => router.push("/")}
+          className="hidden sm:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-5 transition"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -342,7 +382,7 @@ export default function CardPage() {
       </div>
 
       {/* Right side - feed */}
-      <div className="flex-1 flex flex-col bg-gray-50">
+      <div className={`flex-1 flex-col bg-gray-50 ${mobileTab === "feed" ? "flex" : "hidden"} sm:flex`}>
         {/* Timeline */}
         <div className="flex-1 overflow-y-auto p-5 space-y-2">
           {timeline.length === 0 && (
@@ -432,14 +472,14 @@ export default function CardPage() {
 
         {/* Unified input bar */}
         <div className="p-4 bg-white border-t border-gray-200">
-          <div className="flex items-end gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
             <textarea
               value={messageText}
               onChange={(e) => setMessageText(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={taskDatetime ? "Что нужно сделать?" : "Написать заметку..."}
               rows={1}
-              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full sm:flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               style={{ minHeight: "42px", maxHeight: "120px" }}
               onInput={(e) => {
                 const target = e.target as HTMLTextAreaElement;
@@ -447,36 +487,38 @@ export default function CardPage() {
                 target.style.height = target.scrollHeight + "px";
               }}
             />
-            <div className="relative flex-shrink-0">
-              <input
-                type="datetime-local"
-                value={taskDatetime}
-                onChange={(e) => setTaskDatetime(e.target.value)}
-                className={`px-3 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  taskDatetime
-                    ? "border-amber-300 bg-amber-50 text-gray-900"
-                    : "border-gray-300 text-gray-900"
-                }`}
-              />
-              {taskDatetime && (
-                <button
-                  onClick={() => setTaskDatetime("")}
-                  className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-400 hover:bg-gray-500 text-white rounded-full flex items-center justify-center text-xs transition"
-                >
-                  ×
-                </button>
-              )}
+            <div className="flex items-end gap-2">
+              <div className="relative flex-1 sm:flex-shrink-0 sm:flex-initial">
+                <input
+                  type="datetime-local"
+                  value={taskDatetime}
+                  onChange={(e) => setTaskDatetime(e.target.value)}
+                  className={`w-full sm:w-auto px-3 py-2.5 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    taskDatetime
+                      ? "border-amber-300 bg-amber-50 text-gray-900"
+                      : "border-gray-300 text-gray-900"
+                  }`}
+                />
+                {taskDatetime && (
+                  <button
+                    onClick={() => setTaskDatetime("")}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gray-400 hover:bg-gray-500 text-white rounded-full flex items-center justify-center text-xs transition"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+              <Button
+                onClick={handleSend}
+                loading={sending}
+                disabled={!messageText.trim()}
+                className="flex-shrink-0 !rounded-xl !px-4"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </Button>
             </div>
-            <Button
-              onClick={handleSend}
-              loading={sending}
-              disabled={!messageText.trim()}
-              className="flex-shrink-0 !rounded-xl !px-4"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-              </svg>
-            </Button>
           </div>
           {taskDatetime && (
             <p className="text-xs text-amber-600 mt-1.5 ml-1">
@@ -485,6 +527,8 @@ export default function CardPage() {
           )}
         </div>
       </div>
+
+      </div>{/* /content row */}
     </div>
   );
 }
